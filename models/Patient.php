@@ -1,11 +1,12 @@
 <?php
-require_once(__DIR__.'/Connect.php');
+require_once(__DIR__ . '/Connect.php');
 class Patient
 {
+    private int $id;
     private string $lastname;
     private string $firstname;
     private string $email;
-    private string $phonenumber;
+    private string $phone;
     private string $birthdate;
 
     /**
@@ -13,16 +14,11 @@ class Patient
      * @param string $lastname
      * @param string $firstname
      * @param string $email
-     * @param string $phonenumber
+     * @param string $phone
      * @param string $birthdate
      */
-    public function __construct(string $lastname, string $firstname, string $email, string $phonenumber, string $birthdate)
+    public function __construct()
     {
-        $this->lastname = $lastname;
-        $this->firstname = $firstname;
-        $this->email = $email;
-        $this->phonenumber = $phonenumber;
-        $this->birthdate = $birthdate;
     }
     /**
      * Méthode magique permettant de gérer l'affichage d'un patient
@@ -30,26 +26,38 @@ class Patient
      */
     public function __toString()
     {
-        return "Prénom : $this->firstname <br> Nom : $this->lastname <br> Adresse mail : $this->email <br> Numéro de téléphone : $this->phonenumber <br> Date de naissance : $this->birthdate";
+        return "Prénom : $this->firstname <br> Nom : $this->lastname <br> Adresse mail : $this->email <br> Numéro de téléphone : $this->phone <br> Date de naissance : $this->birthdate";
     }
 
-    public function addPatient(){
-        $query = 'INSERT INTO `patients`(`lastname`, `firstname`, `mail`, `phone`, `birthdate` ) VALUES (\':lastname\',\':firstname\',\':mail\',\':phone\',\':birthdate\');';
+    public function getSingle()
+    {
         $db = dbConnect();
-        $sth = $db->prepare($query);
-        $sth->bindValue(':lastname', $this->lastname, PDO::PARAM_STR);
-        $sth->bindValue(':firstname', $this->firstname, PDO::PARAM_STR);
-        $sth->bindValue(':mail', $this->email, PDO::PARAM_STR);
-        $sth->bindValue(':phone', $this->phonenumber, PDO::PARAM_STR);
-        $sth->bindValue(':birthdate', $this->birthdate, PDO::PARAM_STR);
-        $sth->execute();
+        $id = $_GET['id'];
+        $query = "SELECT * FROM `patients` WHERE `id` = $id ;";
+        $sth = $db->query($query);
+        $result = $sth->fetchAll(PDO::FETCH_OBJ);
+        $this->lastname = $result[0]->lastname;
+        $this->firstname = $result[0]->firstname;
+        $this->email = $result[0]->mail;
+        $this->birthdate = $result[0]->birthdate;
+        $this->phone = $result[0]->phone;
     }
+
+    /**
+     * Méthode pour récupérer l'ID
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
 
     /**
      * Méthode pour récupérer le lastname
      * @return string
      */
-    public function getLastname():string
+    public function getLastname(): string
     {
         return $this->lastname;
     }
@@ -59,7 +67,7 @@ class Patient
      * 
      * @return void
      */
-    public function setLastname(string $lastname):void
+    public function setLastname(string $lastname): void
     {
         $this->lastname = $lastname;
     }
@@ -68,7 +76,7 @@ class Patient
      * Méthode pour récupérer le firstname
      * @return string
      */
-    public function getFirstname():string
+    public function getFirstname(): string
     {
         return $this->firstname;
     }
@@ -78,16 +86,16 @@ class Patient
      * 
      * @return void
      */
-    public function setFirstname(string $firstname):void
+    public function setFirstname(string $firstname): void
     {
-        $this->lastname = $firstname;
+        $this->firstname = $firstname;
     }
 
     /**
      * Méthode pour récupérer l'email
      * @return string
      */
-    public function getEmail():string
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -97,7 +105,7 @@ class Patient
      * 
      * @return void
      */
-    public function setEmail(string $email):void
+    public function setEmail(string $email): void
     {
         $this->email = $email;
     }
@@ -106,26 +114,26 @@ class Patient
      * Méthode pour récupérer le numéro de tel
      * @return string
      */
-    public function getPhonenumber():string
+    public function getPhone(): string
     {
-        return $this->phonenumber;
+        return $this->phone;
     }
     /**
      * Méthode pour changer la valeur du numéro de tel
-     * @param mixed $phonenumber
+     * @param mixed $phone
      * 
      * @return void
      */
-    public function setPhonenumber(string $phonenumber):void
+    public function setPhone(string $phone): void
     {
-        $this->phonenumber = $phonenumber;
+        $this->phone = $phone;
     }
-    
+
     /**
      * Méthode pour récupérer la date de naissance
      * @return string
      */
-    public function getBirthdate():string
+    public function getBirthdate(): string
     {
         return $this->birthdate;
     }
@@ -135,8 +143,70 @@ class Patient
      * 
      * @return void
      */
-    public function setBirthdate(string $birthdate):void
+    public function setBirthdate(string $birthdate): void
     {
         $this->birthdate = $birthdate;
+    }
+
+    public static function isMailExist(string $mail): bool
+    {
+        $db = dbConnect();
+        $verifQuery = "SELECT `id` FROM `patients` WHERE `mail` = :mail ;";
+        $verifEmail = $db->prepare($verifQuery);
+        $verifEmail->bindValue(':mail', $mail, PDO::PARAM_STR);
+        $verifEmail->execute();
+        $result = $verifEmail->fetchAll(PDO::FETCH_OBJ);
+        if (empty($result)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    /**
+     * Méthode pour créer un nouveau patient
+     * @return void
+     */
+    public function add(): bool
+    {
+        $db = dbConnect();
+        if ($this->isMailExist($this->email) == false) {
+            $query = 'INSERT INTO `patients` (`lastname`, `firstname`, `birthdate`,`phone`, `mail`) VALUES (:lastname,:firstname,:birthdate,:phone,:mail);';
+            $sth = $db->prepare($query);
+            $sth->bindValue(':lastname', $this->lastname, PDO::PARAM_STR);
+            $sth->bindValue(':mail', $this->email, PDO::PARAM_STR);
+            $sth->bindValue(':phone', $this->phone, PDO::PARAM_STR);
+            $sth->bindValue(':firstname', $this->firstname, PDO::PARAM_STR);
+            $sth->bindValue(':birthdate', $this->birthdate, PDO::PARAM_STR);
+            return $sth->execute();
+        } else {
+            return false;
+        }
+    }
+    public static function getAll()
+    {
+        $query = 'SELECT * FROM `patients`;';
+        $db = dbConnect();
+        $sth = $db->query($query);
+        $patients = $sth->fetchAll(PDO::FETCH_OBJ);
+
+        return $patients;
+    }
+
+    public function modify()
+    {
+        $id = $_GET['id'];
+        $mail = $_GET['mail'];
+        $db = dbConnect();
+        $verifQuery = "SELECT `mail` FROM `patients` WHERE `mail` = '$this->email' ;";
+
+        $verifEmail = $db->query($verifQuery);
+        $resultEmail = $verifEmail->fetch(PDO::FETCH_ASSOC);
+        if ($mail != $resultEmail['mail'] && $resultEmail['mail'] <> "") {
+            $query = "UPDATE `patients` SET `lastname`='$this->lastname',`firstname`='$this->firstname',`birthdate`='$this->birthdate',`phone`='$this->phone',`mail`='$this->email' WHERE `id` = $id";
+            $sth = $db->prepare($query);
+            return $sth->execute();
+        } else {
+            return false;
+        }
     }
 }

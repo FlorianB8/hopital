@@ -1,0 +1,99 @@
+body {
+    font-family: 'ABeeZee', sans-serif;
+}
+li {
+    text-decoration: none;
+    list-style-type: none;
+}
+.linkPage, .linkPageHome{
+    transition-duration: 0.5s;
+    text-decoration: none;
+    color: white;
+}
+.bgDarkGreen {
+    background-color: #243E36;
+}
+.bgGreen {
+    background-color: #7CA982;
+}
+
+.textLight {
+    color: #F1F7ED;
+}
+
+.menuHome, .formPatient {
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+    min-height: 30vh;
+}
+
+
+.linkPage:hover {
+    text-decoration: none;
+    transition-duration: 0.5s;
+    color: #636262;
+}
+.linkPageHome:hover {
+    text-decoration: none;
+    transition-duration: 0.5s;
+    color: #202020;
+}
+
+
+/* * Tableau affichage des clients  */
+
+
+table.table tr th, table.table tr td {
+    border-color: #e9e9e9;
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+table.table tr th:first-child {
+    width: 60px;
+}
+table.table tr th:last-child {
+    width: 100px;
+}
+table.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fcfcfc;
+}
+table.table-striped.table-hover tbody tr:hover {
+    background: #7CA982;
+}
+table.table th i {
+    font-size: 13px;
+    margin: 0 5px;
+    cursor: pointer;
+}	
+table.table td:last-child i {
+    opacity: 0.9;
+    font-size: 22px;
+    margin: 0 5px;
+}
+
+table.table td a.delete {
+    color: #F44336;
+}
+.settings {
+    transition-duration: 0.5s;
+    color: #243E36;
+}
+.settings:hover {
+    transition-duration: 0.5s;
+    color: #3e5e47;
+}
+table.table td i {
+    font-size: 19px;
+}
+
+.profilInput {
+    background-color: #7CA982;
+    border: 0;
+    width: 100%;
+}
+
+.profilInputActive {
+    background-color: #e9e9e9;
+    border: 1px solid #243E36;
+    border-radius: 5px;
+    width: 100%;
+}
