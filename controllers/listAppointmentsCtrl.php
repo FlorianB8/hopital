@@ -1,13 +1,15 @@
 <?php 
-require_once(__DIR__ . '/../models/Patient.php');
+require_once(__DIR__ . '/../models/Appointment.php');
 require_once(__DIR__ . '/../config/functions.php');
-require_once(__DIR__ . '/../helpers/dd.php');
+require_once(__DIR__. '/../helpers/dd.php');
 
-if(isset($_GET['idPatient'])){
+if(isset($_GET['idPatient']) && isset($_GET['idAppointment'])){
     $idPatient = $_GET['idPatient'];
-    // dd()
+    $idAppointment = $_GET['idAppointment'];
+    // dd($appointments = Appointment::delete($id));
     try {
-        Patient::deletePatientAndAppointment($idPatient);
+        // Appel de la méthode statique getAll() qui permet de récupérer tout les patients
+        $appointments = Appointment::delete($idPatient,$idAppointment );
     } catch (\Throwable $th) {
         $errorMessage = 'Une erreur est survenue lors de la récupération des patients !';
         include(__DIR__ . '/../views/templates/header.php');
@@ -16,11 +18,12 @@ if(isset($_GET['idPatient'])){
         die;
     }
 }
+
 try {
     // Appel de la méthode statique getAll() qui permet de récupérer tout les patients
-    $patients = Patient::getAll();
+    $appointments = Appointment::getAll();
 } catch (\Throwable $th) {
-    $errorMessage = $th->getMessage();
+    $errorMessage = 'Une erreur est survenue lors de la récupération des patients !';
     include(__DIR__ . '/../views/templates/header.php');
     include(__DIR__ . '/../views/templates/error.php');
     include(__DIR__ . '/../views/templates/footer.php');
@@ -28,5 +31,5 @@ try {
 }
 
 include(__DIR__ . '/../views/templates/header.php');
-include(__DIR__ . '/../views/patient/listPatients.php');
+include(__DIR__ . '/../views/appointment/listAppointments.php');
 include(__DIR__ . '/../views/templates/footer.php');

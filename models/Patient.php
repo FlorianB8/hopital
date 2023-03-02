@@ -29,20 +29,82 @@ class Patient
         return "Prénom : $this->firstname <br> Nom : $this->lastname <br> Adresse mail : $this->email <br> Numéro de téléphone : $this->phone <br> Date de naissance : $this->birthdate";
     }
 
-    public function getSingle()
+    /**
+     * Méthode permettant de supprimer les rendez-vous d'un patient puis le patient de la bdd
+     * @param int $id
+     * 
+     * @return array
+     */
+    public static function deletePatientAndAppointment(int $id):array
     {
         $db = dbConnect();
-        $id = $_GET['id'];
-        $query = "SELECT * FROM `patients` WHERE `id` = $id ;";
-        $sth = $db->query($query);
-        $result = $sth->fetchAll(PDO::FETCH_OBJ);
-        $this->lastname = $result[0]->lastname;
-        $this->firstname = $result[0]->firstname;
-        $this->email = $result[0]->mail;
-        $this->birthdate = $result[0]->birthdate;
-        $this->phone = $result[0]->phone;
+        $query =
+            "DELETE FROM `appointments` WHERE `idPatients` IN (SELECT `id` FROM `patients` WHERE `patients`.`id` = :id);
+        DELETE FROM `patients` WHERE `id` = :id;";
+        $sth = $db->prepare($query);
+        $sth->bindValue(':id', $id, PDO::PARAM_INT);
+        $sth->execute();
+        return  $sth->fetchAll();
+    }
+    /**
+     * Méthode permettant de récupérer les données des rendez-vous pour un patient
+     * @param int $id
+     * 
+     * @return array
+     */
+    public static function getAppointment(int $id):array
+    {
+        $db = dbConnect();
+        $query =
+            "SELECT `appointments` . `dateHour` 
+        FROM `appointments` 
+        LEFT JOIN `patients` 
+        ON `appointments`.`idPatients` = `patients`.`id`
+        WHERE `appointments`.`idPatients` = :id ;";
+        $sth = $db->prepare($query);
+        $sth->bindValue(':id', $id, PDO::PARAM_INT);
+        $sth->execute();
+        return  $sth->fetchAll();
+    }
+    /**
+     * Récupère un patient 
+     * @return object
+     */
+    public static function get(int $id):object|bool
+    {
+        $db = dbConnect();
+        $query = "SELECT * FROM `patients` WHERE `id` = :id ;";
+        $sth = $db->prepare($query);
+        $sth->bindValue(':id', $id, PDO::PARAM_INT);
+        $sth->execute();
+        $result = $sth->fetch();
+
+        return $result;
     }
 
+    /**
+     * Méthode pour vérifier si l'id d'un patient existe
+     * @param int $id
+     * 
+     * @return bool
+     */
+    public static function isIdExist(int $id):bool
+    {
+        $db = dbConnect();
+        $verifQuery = "SELECT `id` FROM `patients` WHERE `id` = :id ;";
+        $verifEmail = $db->prepare($verifQuery);
+        $verifEmail->bindValue(':id', $id, PDO::PARAM_STR);
+        $verifEmail->execute();
+        $result = $verifEmail->fetch();
+        return !empty($result);
+
+        // if (empty($result)) {
+        //     return false;
+        // } else {
+        //     return true;
+        // }
+
+    }
     /**
      * Méthode pour récupérer l'ID
      * @return int
@@ -148,6 +210,12 @@ class Patient
         $this->birthdate = $birthdate;
     }
 
+    /**
+     * Vérifie si un mail est déjà existant en bdd
+     * @param string $mail
+     * 
+     * @return bool
+     */
     public static function isMailExist(string $mail): bool
     {
         $db = dbConnect();
@@ -155,7 +223,7 @@ class Patient
         $verifEmail = $db->prepare($verifQuery);
         $verifEmail->bindValue(':mail', $mail, PDO::PARAM_STR);
         $verifEmail->execute();
-        $result = $verifEmail->fetchAll(PDO::FETCH_OBJ);
+        $result = $verifEmail->fetchAll();
         if (empty($result)) {
             return false;
         } else {
@@ -169,44 +237,56 @@ class Patient
     public function add(): bool
     {
         $db = dbConnect();
-        if ($this->isMailExist($this->email) == false) {
-            $query = 'INSERT INTO `patients` (`lastname`, `firstname`, `birthdate`,`phone`, `mail`) VALUES (:lastname,:firstname,:birthdate,:phone,:mail);';
-            $sth = $db->prepare($query);
-            $sth->bindValue(':lastname', $this->lastname, PDO::PARAM_STR);
-            $sth->bindValue(':mail', $this->email, PDO::PARAM_STR);
-            $sth->bindValue(':phone', $this->phone, PDO::PARAM_STR);
-            $sth->bindValue(':firstname', $this->firstname, PDO::PARAM_STR);
-            $sth->bindValue(':birthdate', $this->birthdate, PDO::PARAM_STR);
-            return $sth->execute();
-        } else {
-            return false;
-        }
+        $query = 'INSERT INTO `patients` (`lastname`, `firstname`, `birthdate`,`phone`, `mail`) VALUES (:lastname,:firstname,:birthdate,:phone,:mail);';
+        $sth = $db->prepare($query);
+        $sth->bindValue(':lastname', $this->lastname, PDO::PARAM_STR);
+        $sth->bindValue(':mail', $this->email, PDO::PARAM_STR);
+        $sth->bindValue(':phone', $this->phone, PDO::PARAM_STR);
+        $sth->bindValue(':firstname', $this->firstname, PDO::PARAM_STR);
+        $sth->bindValue(':birthdate', $this->birthdate, PDO::PARAM_STR);
+        $sth->execute();
+        $result = $sth->rowCount();
+
+        return !empty($result);
     }
-    public static function getAll()
+    /**
+     * Permet de récupérer tout les patients
+     * @return array
+     */
+    public static function getAll():array
     {
         $query = 'SELECT * FROM `patients`;';
         $db = dbConnect();
         $sth = $db->query($query);
-        $patients = $sth->fetchAll(PDO::FETCH_OBJ);
+        $patients = $sth->fetchAll();
 
         return $patients;
     }
 
-    public function modify()
+    /**
+     * Modifie un patient dans la bdd
+     * @return [type]
+     */
+    public function update(int $id):bool
     {
-        $id = $_GET['id'];
-        $mail = $_GET['mail'];
         $db = dbConnect();
-        $verifQuery = "SELECT `mail` FROM `patients` WHERE `mail` = '$this->email' ;";
+        $query = "UPDATE `patients` 
+        SET `lastname`=:lastname,
+            `firstname`=:firstname,
+            `birthdate`=:birthdate,
+            `phone`=:phone,
+            `mail`= :mail 
+        WHERE `id` = :id";
+        $sth = $db->prepare($query);
+        $sth->bindValue(':id', $id, PDO::PARAM_INT);
+        $sth->bindValue(':lastname', $this->lastname, PDO::PARAM_STR);
+        $sth->bindValue(':mail', $this->email, PDO::PARAM_STR);
+        $sth->bindValue(':phone', $this->phone, PDO::PARAM_STR);
+        $sth->bindValue(':firstname', $this->firstname, PDO::PARAM_STR);
+        $sth->bindValue(':birthdate', $this->birthdate, PDO::PARAM_STR);
+        $sth->execute();
+        $result = $sth->rowCount();
 
-        $verifEmail = $db->query($verifQuery);
-        $resultEmail = $verifEmail->fetch(PDO::FETCH_ASSOC);
-        if ($mail != $resultEmail['mail'] && $resultEmail['mail'] <> "") {
-            $query = "UPDATE `patients` SET `lastname`='$this->lastname',`firstname`='$this->firstname',`birthdate`='$this->birthdate',`phone`='$this->phone',`mail`='$this->email' WHERE `id` = $id";
-            $sth = $db->prepare($query);
-            return $sth->execute();
-        } else {
-            return false;
-        }
+        return $result>0 ? true : false;
     }
 }

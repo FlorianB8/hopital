@@ -1,12 +1,17 @@
 <?php
 require_once(__DIR__ . '/../models/Patient.php');
+require_once(__DIR__ . '/../models/Appointment.php');
 require_once(__DIR__ . '/../config/functions.php');
 require_once(__DIR__ . '/../config/flash.php');
 require_once(__DIR__ . '/../helpers/dd.php');
 
+$id = intval(filter_input(INPUT_GET,'id', FILTER_SANITIZE_NUMBER_INT));
+$patient = Patient::get($id);
+if(!$patient){
+    header('Location : /404.php');
+}
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $error = [];
-
     // * Vérification de l'input email 
     $email = trim(filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL));
     if (empty($email)) {
@@ -14,6 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error['email'] = 'Veuillez renseigner une adresse mail valide';
+        }
+        if ($email != $patient->mail && Patient::isMailExist($email)) {
+            $error['email'] = 'Adresse mail déjà existante !';
         }
     }
     // * -----------------------------
@@ -71,22 +79,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $patient->setEmail($email);
         $patient->setPhone($phone);
         $patient->setBirthdate($birthdate);
-        $result = $patient->modify();
+
+        $result = $patient->update($id);
+
+        $patient = Patient::get($id);
+
         if ($result === true) {
             $flash = 'Patient modifié avec succés !';
             $type = 'success';
         } else {
-            $flash = 'Email déjà existant';
+            $flash = 'Erreur lors de l\'éxecution !';
             $type = 'danger';
         }
+    } else {
+        $flash = 'Adresse mail déjà existante !';
+        $type = 'danger';
     }
 }
 
 try {
-    $patient = new Patient();
-    $patient->getSingle();
+    if(Patient::isIdExist($id) == false) {
+        throw new Exception("Ce patient n'existe pas !", 1);   
+    }
+
+    $appointments = Patient::getAppointment($id);
 } catch (\Throwable $th) {
-    $errorMessage = 'Une erreur est survenue lors de la récupération du patient !';
+    $errorMessage = $th->getMessage();
     include(__DIR__ . '/../views/templates/header.php');
     include(__DIR__ . '/../views/templates/error.php');
     include(__DIR__ . '/../views/templates/footer.php');
