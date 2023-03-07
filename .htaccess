@@ -4,5 +4,6 @@ RewriteRule accueil /controllers/homeCtrl.php
 RewriteRule ajoutPatient /controllers/addPatientCtrl.php
 RewriteRule listePatient /controllers/listPatientsCtrl.php
 RewriteRule ajoutRendezVous /controllers/addAppointmentCtrl.php
+RewriteRule ajoutPatientRendezVous /controllers/addPatientAppointmentCtrl.php
 RewriteRule listeRendezVous /controllers/listAppointmentsCtrl.php
 ErrorDocument 404 /views/404.php

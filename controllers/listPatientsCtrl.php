@@ -16,9 +16,19 @@ if(isset($_GET['idPatient'])){
         die;
     }
 }
+
 try {
-    // Appel de la méthode statique getAll() qui permet de récupérer tout les patients
-    $patients = Patient::getAll();
+    if(isset($_GET['search'])){
+        $search = trim(filter_input(INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS));
+        $querySearch = "WHERE `lastname` LIKE '%$search%' OR `firstname` LIKE '%$search%' OR `mail` LIKE '%$search%' OR `phone` LIKE '%$search%' OR `birthdate` LIKE '%$search%' ";
+        $patients = Patient::getAll($querySearch);
+        if(empty($patients)){
+            $emptyMessage = "Aucun patient ne correspond à la recherche.";
+        }
+    } else {
+        // Appel de la méthode statique getAll() qui permet de récupérer tout les patients
+        $patients = Patient::getAll();
+    }
 } catch (\Throwable $th) {
     $errorMessage = $th->getMessage();
     include(__DIR__ . '/../views/templates/header.php');

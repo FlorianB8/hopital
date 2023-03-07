@@ -29,13 +29,14 @@ class Appointment
      * Méthode pour récupérer tout les rendez-vous de la table appointments
      * @return [type]
      */
-    public static function getAll():array
+    public static function getAll($where = null):array
     {
         $query =
             'SELECT `appointments`.`idPatients`,`appointments`.`dateHour`, `appointments`.`id`, `patients`.`firstname`, `patients`.`lastname`, `patients`.`birthdate`, `patients`.`mail`, `patients`.`phone` 
         FROM `appointments` 
         LEFT JOIN `patients` 
-        ON `appointments`.`idPatients` = `patients`.`id`;';
+        ON `appointments`.`idPatients` = `patients`.`id`
+        '.$where.';';
         $db = dbConnect();
         $sth = $db->query($query);
         $appointments = $sth->fetchAll();
@@ -103,7 +104,7 @@ class Appointment
         $sth->execute();
         $result = $sth->rowCount();
 
-        return $result>0 ? true : false;
+        return ($result>0) ? true : false;
     }
     /**
      * Méthode pour définir une valeur à dateHour d'un rendez vous

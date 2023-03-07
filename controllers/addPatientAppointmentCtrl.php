@@ -51,5 +51,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
 include(__DIR__ . '/../views/templates/header.php');
-include(__DIR__ . '/../views/appointment/addAppointment.php');
+include(__DIR__ . '/../views/patient/addPatientAppointment.php');
 include(__DIR__ . '/../views/templates/footer.php');

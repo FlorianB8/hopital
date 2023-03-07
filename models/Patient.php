@@ -253,11 +253,13 @@ class Patient
      * Permet de récupérer tout les patients
      * @return array
      */
-    public static function getAll():array
+    public static function getAll($where = null):array
     {
-        $query = 'SELECT * FROM `patients`;';
+        $query = 'SELECT * FROM `patients` '.$where.';';
         $db = dbConnect();
-        $sth = $db->query($query);
+        $sth = $db->prepare($query);
+        $sth->execute();
+
         $patients = $sth->fetchAll();
 
         return $patients;

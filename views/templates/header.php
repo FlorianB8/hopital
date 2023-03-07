@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="../../public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=ABeeZee&display=swap" rel="stylesheet">
     <link href="/public/assets/js/datatables.js" />
-    <script src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
-    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- <script src="https://media.ethicalads.io/media/client/ethicalads.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script> -->
     <!-- <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script> -->
     <title>Hopital</title>
-    <script type="text/javascript">
+    <!-- <script type="text/javascript">
         $(document).ready(function() {
             $('#table').DataTable({
                 language: {
@@ -41,7 +41,7 @@
                 }
             });
         });
-    </script>
+    </script> -->
 </head>
 
 <body>
@@ -61,7 +61,7 @@
                                 <li class="mx-4 nav-item nav-link"><a class="linkPage" href="/listePatient">Liste patient(s)</a></li>
                                 <li class="mx-4 nav-item nav-link"><a class="linkPage" href="/ajoutRendezVous">Ajout rendez-vous</a></li>
                                 <li class="mx-4 nav-item nav-link"><a class="linkPage" href="/listeRendezVous">Liste rendez-vous</a></li>
-                                <li class="mx-4 nav-item nav-link"><a class="linkPage" href="/controllers/exercice6Ctrl.php">Ajout patient rendez vous</a></li>
+                                <li class="mx-4 nav-item nav-link"><a class="linkPage" href="/ajoutPatientRendezVous">Ajout patient rendez vous</a></li>
                             </ul>
                             <!-------------------------->
                             <h1 class="mx-4 m-2 textLight ms-auto"><i class="fa-solid fa-hospital"></i></h1>

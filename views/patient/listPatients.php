@@ -4,6 +4,10 @@
             <div class="col-10">
                 <h2 class="text-center mt-5">Liste des patient(s)</h2>
                 <hr class="mx-auto w-75">
+                <form action="" method="get">
+                    <input class="input-form" autocomplete="off" type="search" name="search" id="search" placeholder="Votre recherche...">
+                    <input class="input-form" type="submit" value="Rechercher">
+                </form>
                 <table id="table" class="table table-striped table-hover border border-2 mt-5">
                     <thead class="">
                         <tr>
@@ -24,7 +28,8 @@
                         $mail = $patient->mail;
                         $phone = $patient->phone;
                         $birthdate = date('d/m/Y', strtotime($patient->birthdate));
-                    ?>
+                        ?>
+                      
                             <tr>
                                 <td><?= $id ?></td>
                                 <td><?= $firstname ?></td>
@@ -58,6 +63,9 @@
                             <?php } ?>
                         </tbody>
                 </table>
+                <?php if(isset($_GET['search'])){ ?>
+                    <h2 class="text-center"><?= $emptyMessage ?? '' ?></h2>
+                <?php } ?>
             </div>
         </div>
     </div>

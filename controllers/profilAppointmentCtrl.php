@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__ . '/../models/Appointment.php');
+require_once(__DIR__ . '/../models/Patient.php');
 require_once(__DIR__ . '/../config/functions.php');
 require_once(__DIR__ . '/../config/flash.php');
 require_once(__DIR__ . '/../helpers/dd.php');
@@ -47,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 try {
     $appointment = new Appointment();
     $appointment = Appointment::get($id);
+    $patients = Patient::getAll();
 } catch (\Throwable $th) {
     $errorMessage = 'Une erreur est survenue lors de la récupération du patient !';
     include(__DIR__ . '/../views/templates/header.php');
